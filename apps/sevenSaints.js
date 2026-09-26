@@ -41,7 +41,7 @@ export class sevenSaints extends plugin {
     let data = await new Deck(this.e).getIndex(id)
     if (!data) return
 
-    let img = await puppeteer.screenshot("deck", data)
+    let img = await puppeteer.screenshot("deck", { imgType: "webp", ...data })
     if (img) await this.reply([img, this.button])
   }
 
@@ -49,7 +49,7 @@ export class sevenSaints extends plugin {
     let data = await new Deck(this.e).getIndex(id, true)
     if (!data) return
 
-    let img = await puppeteer.screenshot("deckList", data)
+    let img = await puppeteer.screenshot("deckList", { imgType: "webp", ...data })
     if (img) await this.reply([img, this.button])
   }
   async deck_cards(id = 0) {
@@ -59,7 +59,7 @@ export class sevenSaints extends plugin {
     let data = await new Deck(this.e).getcard(id)
     if (!data) return
 
-    let img = await puppeteer.screenshot("deckCard", data)
+    let img = await puppeteer.screenshot("deckCard", { imgType: "webp", ...data })
     if (img) await this.reply([img, this.button])
   }
 }

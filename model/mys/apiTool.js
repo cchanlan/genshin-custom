@@ -215,7 +215,22 @@ export default class apiTool {
         /** 深渊 （混沌回忆） */
         spiralAbyss: {
           url: `${hostRecord}game_record/app/hkrpg/api/challenge`,
-          query: `role_id=${this.uid}&schedule_type=${data.schedule_type || 1}&server=${this.server}`,
+          query: `isPrev=&need_all=true&role_id=${this.uid}&schedule_type=${data.schedule_type || 1}&server=${this.server}`,
+        },
+             /** 虚构叙事 */
+        challengeStory: {
+          url: `${hostRecord}game_record/app/hkrpg/api/challenge_story`,
+          query: `isPrev=&need_all=true&role_id=${this.uid}&schedule_type=${data.schedule_type || 1}&server=${this.server}`
+        },
+        /** 末日幻影 */
+        challengeBoss: {
+          url: `${hostRecord}game_record/app/hkrpg/api/challenge_boss`,
+          query: `isPrev=&need_all=true&role_id=${this.uid}&schedule_type=${data.schedule_type || 1}&server=${this.server}`
+        },
+        /** 异相仲裁 */
+        challengePeak: {
+          url: `${hostRecord}game_record/app/hkrpg/api/challenge_peak`,
+          query: `isPrev=&need_all=true&role_id=${this.uid}&schedule_type=${data.schedule_type || 1}&server=${this.server}`
         },
         /** 角色面板 */
         avatarInfo: {
@@ -236,6 +251,11 @@ export default class apiTool {
         dailyNote: {
           url: `${hostRecord}game_record/app/hkrpg/api/note`,
           query: `role_id=${this.uid}&server=${this.server}`,
+        },
+        // 日历
+        act_calendar: {
+          url: `${hostRecord}game_record/app/hkrpg/api/get_act_calender`,
+          query: `role_id=${this.uid}&server=${this.server}`
         },
         /** 养成计算器 */
         compute: {

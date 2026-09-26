@@ -51,7 +51,7 @@ export class calculator extends plugin {
     if (!data) return
 
     /** 生成图片 */
-    let img = await puppeteer.screenshot("Blueprint", data)
+    let img = await puppeteer.screenshot("Blueprint", { imgType: "webp", ...data })
     if (img) await this.reply(img)
   }
 

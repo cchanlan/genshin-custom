@@ -6,29 +6,35 @@
 
 
 {{block 'main'}}
-<div class="head_box">
+<!-- inline style 盖掉 layout 里那条浅色 .head_box 规则 -->
+<div class="head_box"
+     style="background-image: linear-gradient(100deg, rgba(16,20,32,.94) 0%, rgba(16,20,32,.62) 52%, rgba(16,20,32,.22) 100%), url({{_res_path}}img/roleIndex/namecard/{{bg}}.png)">
   <img class="icon" src="{{avatar}}">
-  <p class="id_text">{{gamename}} | <span
-    style="font-size:15px;color:#1e1f20;margin-left: -2px">Lv.{{gamelevel}}</span></p>
-  <div class="day_text">
-    {{gamefwq}} | UID{{uid}}
-  </div>
+  <p class="id_text"><span class="name">{{gamename}}</span><span class="lv">Lv.{{gamelevel}}</span></p>
+  <div class="day_text">{{gamefwq}} | UID{{uid}}</div>
   <img class="genshin_logo" src="{{_res_path}}img/other/原神.png">
 </div>
+
 <div class="data_box">
   <div class="tab_lable">数据总览</div>
-  {{each line val}}
-  <div class="data_line">
-    {{each val item}}
-    <div class="data_line_item">
-      <div style="color:{{ item.color }};font-size:15px" class="num">{{item.num}}
-        {{ if item.extra}}<span style="font-size:11px;color:#757575;margin-left: -4px">/{{item.extra}}</span>{{/if}}
+  <div class="top_line">
+    {{each topLine item}}
+    <div class="top_item">
+      <div class="top_num">{{item.num}}{{if item.extra}}<span>/{{item.extra}}</span>{{/if}}</div>
+      <div class="lable">{{item.lable}}</div>
+    </div>
+    {{/each}}
+  </div>
+  <!-- 四列网格，项数变化自动换行，不再受固定宽度限制 -->
+  <div class="grid">
+    {{each items item}}
+    <div class="cell">
+      <div class="num" style="color:{{item.color}}">{{item.num}}{{if item.extra}}<span>/{{item.extra}}</span>{{/if}}
       </div>
       <div class="lable">{{item.lable}}</div>
     </div>
     {{/each}}
   </div>
-  {{/each}}
 </div>
 
 {{if basicInfo?.level>0}}
@@ -52,15 +58,23 @@
 
 <div class="explor_box">
   <div class="tab_lable">地图探险</div>
-  {{each explor val}}
-  <div class="item">
-    <img class="icon" src="{{_res_path}}img/other/{{val.name}}.png"/>
-    <div class="content">
-      {{each val.line line}}
-      <p class="name">{{line.name}}：<span class="num">{{line.text}}</span></p>
-      {{/each}}
+  <div class="explor_grid">
+    {{each explor val}}
+    <div class="item{{if !val.hasIcon}} no_icon{{/if}}"
+         {{if val.bgImg}}style="background-image: linear-gradient(115deg, rgba(8,12,20,.84) 0%, rgba(8,12,20,.54) 100%), url({{val.bgImg}})"{{/if}}>
+      <!-- 本地没图就退到接口给的官方徽记，都没有的话由 .no_icon 让文字填满卡片 -->
+      <img class="icon" src="{{_res_path}}img/other/{{val.name}}.png" data-fallback="{{val.icon}}"
+           onerror="var f=this.dataset.fallback; if(f&&this.src!==f){this.src=f}else{this.onerror=null;this.style.display='none'}"/>
+      <div class="content">
+        {{each val.line line}}
+        <p class="name">{{line.name}}<span class="num">{{line.text}}</span></p>
+        {{/each}}
+      </div>
+      <div class="progress">
+        <div class="bar" style="width:{{val.percent}}%"></div>
+      </div>
     </div>
+    {{/each}}
   </div>
-  {{/each}}
 </div>
 {{/block}}

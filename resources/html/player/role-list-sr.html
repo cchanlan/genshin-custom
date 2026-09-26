@@ -1,0 +1,87 @@
+{{extend genshinLayout}}
+
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}html/player/role-list-sr.css?v=8"/>
+{{/block}}
+
+
+{{block 'main'}}
+<!-- 头部照米游社个人主页排：头像+昵称+UID 压在一张模糊底图上，下面挂统计卡 -->
+<div class="head_box" style="background-image: url({{_miao_path}}{{headImg}})">
+  <div class="head_mask"></div>
+  <div class="head_top">
+    {{if avatar}}<img class="avatar" src="{{avatar}}">{{/if}}
+    <div class="head_info">
+      <p class="id_text"><span class="name">{{name}}</span><span class="lv">Lv.{{level}}</span></p>
+      <div class="uid_text">{{region}}<i>|</i>UID{{uid}}</div>
+    </div>
+    {{if rankIcon}}<img class="rank_icon" src="{{rankIcon}}">{{/if}}
+  </div>
+
+  <div class="stat_card">
+    <div class="stat_top">
+      {{each topLine item idx}}
+      <div class="stat_top_item {{if idx>0}}line{{/if}}">
+        <div class="num">{{item.num}}</div>
+        <div class="lable">{{item.lable}}</div>
+      </div>
+      {{/each}}
+    </div>
+    <div class="stat_grid">
+      {{each items item}}
+      <div class="stat_cell">
+        <div class="num {{if item.small}}num_text{{/if}}">{{item.num}}</div>
+        <div class="lable">{{item.lable}}</div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>
+
+<div class="role_box">
+  <div class="box_title">全部角色<span>{{avatars.length}}</span></div>
+  <div class="role_list">
+    {{each avatars item}}
+    <div class="role star{{item.star}}">
+      <!-- 立绘区：透明胸像压星级底图上，底部黑条写 Lv 与名字，右上角挂星魂 -->
+      <div class="role_pic">
+        <div class="pile" style="background-image:url('{{if item.face}}{{_miao_path}}{{item.face}}{{else}}{{item.icon}}{{/if}}')"></div>
+        {{if item.rank>0}}<span class="cons_tag cons{{item.rank}}">{{item.rank}}</span>{{/if}}
+        <div class="role_bar">
+          <span class="lv">Lv.{{item.level}}</span>
+          <span class="rname">{{item.name}}</span>
+          {{if item.elemImg}}<img class="mini elem" src="{{_res_path}}{{item.elemImg}}">{{/if}}
+          {{if item.pathImg}}<img class="mini path" src="{{_miao_path}}{{item.pathImg}}">{{/if}}
+        </div>
+      </div>
+      {{if item.talent.length}}
+      <div class="talent">
+        {{each item.talent v}}<span class="{{if v.full}}full{{/if}}">{{v.level}}</span>{{/each}}
+      </div>
+      {{else}}
+      <div class="talent no_talent"><span>行迹未获取</span></div>
+      {{/if}}
+      <div class="cone_row">
+        {{if item.cone}}
+        <div class="cone cone{{item.cone.star}}">
+          <img src="{{if item.cone.img}}{{_miao_path}}{{item.cone.img}}{{else}}{{item.cone.icon}}{{/if}}">
+          <span class="cone_rank">{{item.cone.rankText}}</span>
+        </div>
+        {{else}}
+        <div class="no_cone">无光锥</div>
+        {{/if}}
+        {{each item.artis a}}
+        <div class="artis">
+          <img src="{{_miao_path}}{{a.img}}">
+          <span class="artis_num">{{a.count}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  <div class="cont_footer">
+    <strong>数据更新时间</strong><span>米游社：{{updateTime}}</span>
+  </div>
+</div>
+{{/block}}

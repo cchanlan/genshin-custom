@@ -80,7 +80,7 @@ export default class MysNews extends base {
   }
 
   render(param) {
-    return puppeteer.screenshots(this.model, param)
+    return puppeteer.screenshots(this.model, { imgType: "webp", ...param })
   }
 
   async newsDetail(postId, gid) {

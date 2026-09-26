@@ -38,12 +38,17 @@ export default class MysInfo {
       "UserGame",
       "deckList",
       "avatar_cardList",
+      "act_calendar",
       "action_cardList",
       "avatarInfo",
       "role_combat",
       "hard_challenge",
       "hard_challenge_popularity",
       "characterDetail",
+      "characterDetail",
+      "challengeStory",
+      "challengeBoss",
+      "challengePeak"
     ]
 
     this.gtest = false

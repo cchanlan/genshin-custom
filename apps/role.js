@@ -2,6 +2,7 @@ import plugin from "../../../lib/plugins/plugin.js"
 import fs from "node:fs"
 import gsCfg from "../model/gsCfg.js"
 import RoleIndex from "../model/roleIndex.js"
+import SrRoleList from "../model/srRoleList.js"
 import Abyss from "../model/abyss.js"
 import Weapon from "../model/weapon.js"
 
@@ -16,6 +17,11 @@ export class role extends plugin {
         {
           reg: "^(#*角色3|#*角色卡片|角色)$",
           fnc: "roleCard",
+        },
+        {
+          // 星铁角色列表，*角色 会被标准化成 #星铁角色
+          reg: "^#星铁角色(列表)?[ |0-9]*$",
+          fnc: "srRoleList",
         },
         {
           reg: "^#[上期|往期|本期]*(深渊|深境|深境螺旋)[上期|往期|本期]*[ |0-9]*$",
@@ -49,6 +55,18 @@ export class role extends plugin {
           { text: "武器", callback: `${this.prefix}武器` },
           { text: "深渊", callback: `${this.prefix}深渊` },
           { text: "剧诗", callback: `${this.prefix}剧诗` },
+        ])
+      },
+    })
+
+    // 星铁没有探索/武器/深渊那几个查询，单独一套按钮
+    Object.defineProperty(this, "srButton", {
+      get() {
+        return segment.button([
+          { text: "角色", callback: "*角色" },
+          { text: "体力", callback: "*体力" },
+          { text: "星琼", callback: "*星琼" },
+          { text: "抽卡记录", callback: "*抽卡记录" },
         ])
       },
     })
@@ -136,6 +154,18 @@ export class role extends plugin {
     this.reply([
       await this.renderImg("genshin", "html/player/role-card", data, { retType: "base64" }),
       this.button,
+    ])
+  }
+
+  /** 星铁角色列表 */
+  async srRoleList() {
+    this.e.isSr = true
+    let data = await SrRoleList.get(this.e)
+    if (!data) return
+
+    this.reply([
+      await this.renderImg("genshin", "html/player/role-list-sr", data, { retType: "base64" }),
+      this.srButton,
     ])
   }
 

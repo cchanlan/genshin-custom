@@ -6,7 +6,6 @@ import moment from "moment"
 import fs from "node:fs"
 import { Character } from "#miao.models"
 
-let dsz = "待实装"
 let imgFile = {}
 
 export default class RoleIndex extends base {
@@ -17,6 +16,8 @@ export default class RoleIndex extends base {
     this.wother = gsCfg.getdefSet("weapon", "other")
     this.lable = gsCfg.getdefSet("role", "index")
 
+    // 地区 id -> 显示名。只用于「把接口原名换成短名」，
+    // 新地区不登记也能正常显示（会用接口原名，超 6 字截断）
     this.area = {
       蒙德: 1,
       璃月: 2,
@@ -343,6 +344,33 @@ export default class RoleIndex extends base {
     return msg
   }
 
+  /**
+   * 神瞳列表
+   * 自动抓取接口里所有 xxxculus_number 字段，游戏出新神瞳时代码无需改动，
+   * 只要在 defSet/role/index.yaml 里补显示名和上限即可（不补也能显示，只是名字是英文）
+   */
+  getOculusList(stats) {
+    let names = this.lable.oculus ?? {}
+    let order = Object.keys(names)
+
+    let list = []
+    for (let key in stats) {
+      let id = key.match(/^(\w+culus)_number$/)?.[1]
+      if (!id) continue
+
+      let sort = order.indexOf(id)
+      list.push({
+        lable: names[id] ?? id,
+        num: stats[key],
+        extra: this.lable[id] ?? 0,
+        // 未登记的排到最后
+        sort: sort < 0 ? order.length : sort,
+      })
+    }
+
+    return lodash.sortBy(list, "sort").map(v => lodash.omit(v, "sort"))
+  }
+
   async roleCard() {
     this.model = "roleCard"
     let res = await MysInfo.get(this.e, "index")
@@ -480,151 +508,161 @@ export default class RoleIndex extends base {
     let daysDifference =
       Math.floor((new Date() - new Date("2020-09-15")) / (1000 * 60 * 60 * 24)) + 1
 
-    let line = [
-      [
-        { lable: "活跃天数", num: stats.active_day_number, extra: `${daysDifference}` },
-        { lable: "深境螺旋", num: stats.spiral_abyss },
-        {
-          lable: "幻想真境剧诗",
-          num: !stats.role_combat.is_unlock
-            ? "未解锁"
-            : !stats.role_combat.has_detail_data
-              ? "-"
-              : `第${stats.role_combat.max_round_id}幕${stats.role_combat.tarot_finished_cnt > 0 ? ` 圣牌${stats.role_combat.tarot_finished_cnt}` : ""}`,
-        },
-        {
-          lable: "幽境危战",
-          num: !stats.hard_challenge.is_unlock
-            ? "未解锁"
-            : !stats.hard_challenge.has_data
-              ? "-"
-              : ["I", "II", "III", "IV", "V", "VI"][stats.hard_challenge.difficulty - 1],
-        },
-      ],
-      [
-        { lable: "角色数", num: stats.avatar_number, extra: this.lable.avatar },
-        // 默认奇偶男性女性都拿了
-        { lable: "满好感角色", num: stats.full_fetter_avatar_num, extra: stats.avatar_number - 3 },
-        { lable: "传送点", num: stats.way_point_number, extra: this.lable.way_point },
-        { lable: "秘境", num: stats.domain_number, extra: this.lable.domain },
-        { lable: "成就", num: stats.achievement_number, extra: this.lable.achievement },
-      ],
-      [
-        {
-          lable: "宝箱总数",
-          num:
-            stats.precious_chest_number +
-            stats.luxurious_chest_number +
-            stats.exquisite_chest_number +
-            stats.common_chest_number +
-            stats.magic_chest_number,
-          extra: this.all_chest,
-        },
-        {
-          lable: "宝箱获取率",
-          num: afterPercentage,
-          color:
-            afterPercentage.substr(0, 1) == "D"
-              ? "#12a182"
-              : afterPercentage.substr(0, 1) == "C"
-                ? "#2775b6"
-                : afterPercentage.substr(0, 1) == "B"
-                  ? "#806d9e"
-                  : afterPercentage.substr(0, 1) == "A"
-                    ? "#c04851"
-                    : afterPercentage.substr(0, 1) == "S"
-                      ? "#f86b1d"
-                      : "",
-        },
-        { lable: "普通宝箱", num: stats.common_chest_number, extra: this.lable.common_chest },
-        { lable: "精致宝箱", num: stats.exquisite_chest_number, extra: this.lable.exquisite_chest },
-        { lable: "珍贵宝箱", num: stats.precious_chest_number, extra: this.lable.precious_chest },
-      ],
-      [
-        { lable: "华丽宝箱", num: stats.luxurious_chest_number, extra: this.lable.luxurious_chest },
-        { lable: "奇馈宝箱", num: stats.magic_chest_number, extra: this.lable.magic_chest },
-        { lable: "风神瞳", num: stats.anemoculus_number, extra: this.lable.anemoculus },
-        { lable: "岩神瞳", num: stats.geoculus_number, extra: this.lable.geoculus },
-        { lable: "雷神瞳", num: stats.electroculus_number, extra: this.lable.electroculus },
-      ],
-      [
-        { lable: "草神瞳", num: stats.dendroculus_number, extra: this.lable.dendroculus },
-        { lable: "水神瞳", num: stats.hydroculus_number, extra: this.lable.hydroculus },
-        { lable: "火神瞳", num: stats.pyroculus_number, extra: this.lable.pyroculus },
-        { lable: "月神瞳", num: stats.moonoculus_number, extra: this.lable.moonoculus },
-        { lable: "冰神瞳", num: `${dsz}`, extra: 0 },
-      ],
+    // 顶部三个大数字，不带方块底（对齐米游社个人主页）
+    let topLine = [
+      { lable: "活跃天数", num: stats.active_day_number, extra: `${daysDifference}` },
+      { lable: "深境螺旋", num: stats.spiral_abyss },
+      {
+        lable: "幻想真境剧诗",
+        num: !stats.role_combat.is_unlock
+          ? "未解锁"
+          : !stats.role_combat.has_detail_data
+            ? "-"
+            : `第${stats.role_combat.max_round_id}幕${stats.role_combat.tarot_finished_cnt > 0 ? ` 圣牌${stats.role_combat.tarot_finished_cnt}` : ""}`,
+      },
     ]
+
+    // 其余全部摊平成一个数组，交给 css grid 四列自动换行，
+    // 行数由项数决定，神瞳/新玩法增减都不用改布局
+    let items = [
+      {
+        lable: "幽境危战",
+        num: !stats.hard_challenge.is_unlock
+          ? "未解锁"
+          : !stats.hard_challenge.has_data
+            ? "-"
+            : ["I", "II", "III", "IV", "V", "VI"][stats.hard_challenge.difficulty - 1],
+      },
+      { lable: "角色数", num: stats.avatar_number, extra: this.lable.avatar },
+      // 默认奇偶男性女性都拿了
+      { lable: "满好感角色", num: stats.full_fetter_avatar_num, extra: stats.avatar_number - 3 },
+      { lable: "传送点", num: stats.way_point_number, extra: this.lable.way_point },
+      { lable: "秘境", num: stats.domain_number, extra: this.lable.domain },
+      { lable: "成就", num: stats.achievement_number, extra: this.lable.achievement },
+      {
+        lable: "宝箱总数",
+        num:
+          stats.precious_chest_number +
+          stats.luxurious_chest_number +
+          stats.exquisite_chest_number +
+          stats.common_chest_number +
+          stats.magic_chest_number,
+        extra: this.all_chest,
+      },
+      {
+        lable: "宝箱获取率",
+        num: afterPercentage,
+        // 深色底，取亮一档的配色保证对比度
+        color:
+          {
+            D: "#3ecfae",
+            C: "#4a9ee0",
+            B: "#a68fd0",
+            A: "#ff7a85",
+            S: "#ffa040",
+          }[afterPercentage.substr(0, 1)] ?? "",
+      },
+      { lable: "普通宝箱", num: stats.common_chest_number, extra: this.lable.common_chest },
+      { lable: "精致宝箱", num: stats.exquisite_chest_number, extra: this.lable.exquisite_chest },
+      { lable: "珍贵宝箱", num: stats.precious_chest_number, extra: this.lable.precious_chest },
+      { lable: "华丽宝箱", num: stats.luxurious_chest_number, extra: this.lable.luxurious_chest },
+      { lable: "奇馈宝箱", num: stats.magic_chest_number, extra: this.lable.magic_chest },
+      ...this.getOculusList(stats),
+    ]
+
     // 尘歌壶
     if (resIndex.homes && resIndex.homes.length > 0) {
-      line.push([
+      items.push(
         { lable: "家园等级", num: resIndex.homes[0].level },
         { lable: "最高仙力", num: resIndex.homes[0].comfort_num },
         { lable: "洞天名称", num: resIndex.homes[0].comfort_level_name },
         { lable: "获得摆设", num: resIndex.homes[0].item_num },
         { lable: "历史访客", num: resIndex.homes[0].visit_num },
-      ])
+      )
     }
 
     resIndex.world_explorations = lodash.orderBy(resIndex.world_explorations, ["id"], ["desc"])
 
+    // 父子地区关系、供奉简称、卡片配色都在 defSet/role/index.yaml 里配
+    let subArea = this.lable.subArea ?? {}
+    let subAreaOnly = this.lable.subAreaOnly ?? []
+    let offeringAlias = this.lable.offeringAlias ?? []
+    let offeringMax = this.lable.offeringMax ?? 3
+    let areaElem = this.lable.areaElem ?? {}
+    // 子区域并进父地区，不单独占卡片
+    let subIds = lodash.flatten(Object.values(subArea))
+
     let explor = []
     for (let val of resIndex.world_explorations) {
-      if ([7, 11, 12, 13].includes(val.id)) continue
+      if (subIds.includes(val.id)) continue
 
-      val.name = this.areaName[val.id]
-        ? this.areaName[val.id]
-        : lodash.truncate(val.name, { length: 6 })
+      val.name = this.areaName[val.id] ?? lodash.truncate(val.name, { length: 6 })
 
+      // 卡片背景优先用米游社官方的地区实景图（bg-地区名.jpg，下载缓存在本地），
+      // 没有的地区回退到 miao-plugin 的元素色主题图，两者都没有就走 css 里的深蓝纯色
+      let elem = areaElem[val.name] ?? ""
+      let bgFile = `${this.screenData.pluResPath}img/other/bg-${val.name}.jpg`
+      let bgImg = fs.existsSync(bgFile)
+        ? bgFile
+        : elem
+          ? `${this._path}/plugins/miao-plugin/resources/common/bg/bg-${elem}.webp`
+          : ""
+
+      // 本地和接口都没有徽记图时让文字填满卡片，别在左边留一块空白
+      let icon = val.icon ?? ""
+      let hasIcon =
+        icon !== "" || fs.existsSync(`${this.screenData.pluResPath}img/other/${val.name}.png`)
       let tmp = {
         name: val.name,
-        line: [
-          {
-            name: val.name,
-            text: `${val.exploration_percentage / 10}%`,
-          },
-        ],
+        bgImg,
+        icon,
+        hasIcon,
+        percent: 0,
+        line: [],
       }
 
-      if (val.id == 10) tmp.line = []
+      // 只展示子区域的父地区（如沉玉谷），自身百分比无意义
+      if (!subAreaOnly.includes(val.id)) {
+        tmp.percent = val.exploration_percentage / 10
+        tmp.line.push({ name: val.name, text: `${tmp.percent}%` })
+      }
 
-      if (["蒙德", "璃月", "稻妻", "须弥", "枫丹"].includes(val.name)) {
+      // 七天神像等级（挪德卡莱那边叫新月神像），米游社把它放第一行
+      if (val.seven_statue_level > 0) {
+        tmp.line.push({ name: "神像", text: `${val.seven_statue_level}级` })
+      }
+
+      // 声望：只有 type=Reputation 的地区 level 才是声望等级。
+      // type=Offering 时 level 是主供奉等级（如龙脊雪山 12 就是忍冬之树），
+      // 那种会和下面的 offerings 重复，所以不单独列
+      if (val.type === "Reputation" && val.level > 0) {
         tmp.line.push({ name: "声望", text: `${val.level}级` })
       }
 
-      if ([6, 10].includes(val.id)) {
-        let oidArr = [7]
-        if (val.id == 10) oidArr = [13, 12, 11]
-        for (let oid of oidArr) {
-          let underground = lodash.find(resIndex.world_explorations, function (o) {
-            return o.id == oid
+      for (let [i, oid] of (subArea[val.id] ?? []).entries()) {
+        let sub = lodash.find(resIndex.world_explorations, o => o.id == oid)
+        if (sub) {
+          let percent = sub.exploration_percentage / 10
+          // 父地区自身不展示探索度时，进度条取第一个子区域的
+          if (subAreaOnly.includes(val.id) && i === 0) tmp.percent = percent
+          tmp.line.push({
+            name: this.areaName[sub.id] ?? lodash.truncate(sub.name, { length: 6 }),
+            text: `${percent}%`,
           })
-          if (underground) {
-            tmp.line.push({
-              name: this.areaName[underground.id],
-              text: `${underground.exploration_percentage / 10}%`,
-            })
-          }
         }
       }
 
-      if (["雪山", "稻妻", "层岩巨渊", "须弥", "枫丹", "沉玉谷", "纳塔"].includes(val.name)) {
-        if (val.offerings[0].name.includes("流明石")) {
-          val.offerings[0].name = "流明石"
-        }
-        if (val.offerings[0].name == "桓那兰那的梦之树") {
-          val.offerings[0].name = "梦之树"
-        }
-        if (val.offerings[0].name.includes("露景泉")) {
-          val.offerings[0].name = "露景泉"
-        }
-        if (val.offerings[0].name.includes("煅石之火")) {
-          val.offerings[0].name = "煅石之火"
-        }
-
+      // 供奉：接口给多少就显示多少，但挪德卡莱有 8 个「聚所」、至冬有 4 项，
+      // 全列出来会把卡片撑爆，所以限制条数（米游社 App 里这些也是折叠的）
+      for (let offering of (val.offerings ?? []).slice(0, offeringMax)) {
+        if (!offering?.name) continue
+        // 「空之神殿·摹忆中枢」这类带地区名前缀的去掉前缀，卡片里已经有地区名了
+        let name = offering.name.replace(`${val.name}·`, "")
         tmp.line.push({
-          name: val.offerings[0].name,
-          text: `${val.offerings[0].level}级`,
+          name:
+            offeringAlias.find(v => name.includes(v)) ??
+            lodash.truncate(name, { length: 9, omission: "…" }),
+          text: `${offering.level}级`,
         })
       }
 
@@ -644,9 +682,12 @@ export default class RoleIndex extends base {
       saveId: this.e.uid,
       uid: this.e.uid,
       activeDay: this.dayCount(stats.active_day_number),
-      line,
+      topLine,
+      items,
       explor,
       basicInfo,
+      // 头部名片底图，模板里用 inline style 盖掉 layout 的浅色 .head_box
+      bg: lodash.random(1, 8),
       headIndexStyle: this.headIndexStyle,
       ...this.screenData,
       gamename: resIndex?.role?.nickname ?? 0,

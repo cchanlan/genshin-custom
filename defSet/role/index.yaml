@@ -1,32 +1,38 @@
+# ==========================================================
+# 探索度/宝箱等「分母」数据
+# 这些数字接口不返回，只能跟着游戏版本人工维护
+# 版本更新时改这里即可，不需要动 model/roleIndex.js
+# ==========================================================
+
 # 成就
-achievement: 1676
+achievement: 1844
 
 # 角色数
-avatar: 113
+avatar: 121
 
 # 等级
 level: 60
 
 # 奇馈宝箱
-magic_chest: 366
+magic_chest: 416
 
 # 华丽宝箱
-luxurious_chest: 366
+luxurious_chest: 410
 
 # 珍贵宝箱
-precious_chest: 960
+precious_chest: 1073
 
 # 精致宝箱
-exquisite_chest: 3043
+exquisite_chest: 3372
 
 # 普通宝箱
-common_chest: 3570
+common_chest: 3838
 
 # 传送点
-way_point: 693
+way_point: 839
 
 # 秘境
-domain: 69
+domain: 74
 
 # 风神瞳
 anemoculus: 66
@@ -47,4 +53,75 @@ hydroculus: 271
 pyroculus: 271
 
 # 月神瞳
-moonoculus: 192
+moonoculus: 271
+
+# 冰神瞳（接口字段实测是 iceculus_number，不是 cryoculus）
+iceculus: 140
+
+# ==========================================================
+# 以下为展示规则，正常不用改
+# ==========================================================
+
+# 神瞳显示名：接口字段名去掉 _number 后缀 → 中文名
+# 接口里凡是 xxxculus_number 的字段都会自动渲染，
+# 这里没登记的会直接显示英文 key，补一行即可。
+# 顺序即展示顺序，未登记的排在最后。
+oculus:
+  anemoculus: 风神瞳
+  geoculus: 岩神瞳
+  electroculus: 雷神瞳
+  dendroculus: 草神瞳
+  hydroculus: 水神瞳
+  pyroculus: 火神瞳
+  moonoculus: 月神瞳
+  iceculus: 冰神瞳
+
+# 有声望系统的地区（供奉是自动识别的，不用登记）
+# 已不需要维护：改成用接口的 type 字段判断了
+# （type=Reputation 且 level>0 才是声望；type=Offering 时 level 是主供奉等级）
+
+# 子区域归并：父地区 id -> 子地区 id 列表（按展示顺序）
+# 子区域不单独占一个卡片，而是并进父地区
+subArea:
+  6: [7]
+  10: [13, 12, 11]
+
+# 这些父地区只展示子区域，不展示自身探索度（如沉玉谷）
+subAreaOnly: [10]
+
+# 供奉名简化：接口原名包含左边的关键词时，显示为左边的名字
+offeringAlias:
+  - 流明石
+  - 露景泉
+  - 煅石之火
+  - 梦之树
+
+# 每个地区最多显示几项供奉。挪德卡莱有 8 个「聚所」、至冬有 4 项，
+# 全列出来会把卡片撑爆（米游社 App 里这些也是折叠的）
+offeringMax: 3
+
+# 地区卡片配色：用 miao-plugin 的元素主题背景图 bg-{elem}.webp
+# 可选值 anemo(风/青) geo(岩/金) electro(雷/紫) dendro(草/绿)
+#        hydro(水/蓝) pyro(火/橙红) cryo(冰/冰蓝)
+# 子区域跟随父地区。没登记的新地区会用深蓝纯色兜底，不会破版。
+areaElem:
+  蒙德: anemo
+  璃月: geo
+  雪山: cryo
+  稻妻: electro
+  渊下宫: electro
+  层岩巨渊: geo
+  层岩地下: geo
+  须弥: dendro
+  枫丹: hydro
+  沉玉谷: geo
+  沉玉谷·南陵: geo
+  沉玉谷·上谷: geo
+  来歆山: geo
+  旧日之海: hydro
+  纳塔: pyro
+  远古圣山: pyro
+  挪德卡莱: cryo
+  空之神殿: cryo
+  风息山: anemo
+  至冬: cryo

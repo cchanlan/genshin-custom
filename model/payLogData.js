@@ -326,6 +326,7 @@ export class HtmlData extends base {
 export async function renderImg(data) {
   const htmlData = new HtmlData(data)
   const imgDatas = {
+    imgType: "webp",
     ...htmlData.screenData,
     topData: htmlData.getTopData(),
     barData: JSON.stringify(htmlData.getBarData()),

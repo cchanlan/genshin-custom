@@ -1,0 +1,421 @@
+@font-face {
+  font-family: "tttgbnumber";
+  src: url("../../font/tttgbnumber.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+body {
+  font-size: 18px;
+  color: #fff;
+  transform: scale(1.4);
+  transform-origin: 0 0;
+}
+/* 容器与缩放照原神 #角色 的规格来（740×1.4 = 1036px 宽）：
+   再宽就超过手机屏宽、会被 QQ 二次缩放，字和立绘都会发虚。
+   底层铺星铁那张星空图（miao 的 .elem-sr .elem-bg 用的就是它），卡片缝隙和空位才不是死黑。
+   缩放照原神用 cover：图会被放大到整张连贯铺满容器，露出来的是星空中间那片亮的，
+   换成 contain 平铺的话，平铺到下半段接的是图片边缘、本来就暗，整块角色区会黑成一片 */
+.container {
+  width: 740px;
+  padding: 0 0 6px;
+  background-color: #0c0e14;
+  background-image: url("../../../../miao-plugin/resources/common/bg/bg-sr.webp");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+/******** 头部：底图 + 遮罩 + 统计卡 ********/
+/* 特异性要高于 layout/genshin.html 里那条 .head_box，否则会被它的浅色规则盖掉 */
+.container .head_box {
+  position: relative;
+  padding: 14px 12px 12px;
+  border-radius: 0;
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  font-family: tttgbnumber;
+  overflow: hidden;
+}
+.head_mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(12, 14, 20, 0.28) 0%, rgba(12, 14, 20, 0.6) 42%, #0c0e14 100%);
+}
+.head_top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 4px;
+}
+.head_top .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(226, 199, 143, 0.85);
+  background: rgba(12, 14, 20, 0.6);
+}
+.head_info {
+  flex: 1;
+  margin-left: 10px;
+  min-width: 0;
+}
+.id_text {
+  display: flex;
+  align-items: center;
+  font-size: 19px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+.id_text .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 8em;
+}
+.id_text .lv {
+  font-size: 11px;
+  margin-left: 8px;
+  padding: 2px 7px 1px;
+  border-radius: 8px;
+  color: #f5e7c6;
+  background: rgba(226, 199, 143, 0.22);
+  border: 1px solid rgba(226, 199, 143, 0.45);
+}
+.uid_text {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #c3cbdb;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+.uid_text i {
+  margin: 0 6px;
+  font-style: normal;
+  color: #6d7688;
+}
+.head_top .rank_icon {
+  height: 52px;
+  margin-left: 8px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.stat_card {
+  position: relative;
+  margin-top: 12px;
+  padding: 12px 9px 9px;
+  border-radius: 13px;
+  background: rgba(24, 27, 36, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.stat_top {
+  display: flex;
+  padding-bottom: 10px;
+}
+.stat_top_item {
+  flex: 1;
+  text-align: center;
+}
+.stat_top_item.line {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+.stat_top_item .num {
+  font-size: 24px;
+  color: #fff;
+  line-height: 1.15;
+}
+.stat_top_item .lable {
+  margin-top: 3px;
+  font-size: 11px;
+  color: #9aa4b8;
+}
+.stat_grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -3px;
+}
+.stat_cell {
+  width: 16.666%;
+  padding: 0 3px 5px;
+}
+.stat_cell .num {
+  padding: 6px 3px 0;
+  font-size: 17px;
+  text-align: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 9px 9px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stat_cell .num_text {
+  font-size: 13px;
+  padding-top: 9px;
+  color: #eadfc4;
+}
+.stat_cell .lable {
+  padding: 2px 3px 6px;
+  font-size: 10px;
+  text-align: center;
+  color: #8d97ab;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 0 0 9px 9px;
+}
+
+/******** 角色列表 ********/
+/* 卡片横向铺满容器：容器宽 740，六张卡各 16.6667% 加 4px 外边距正好凑满。
+   不给左右留内边距、也不加整块底色 —— 露出来的星空本来就近黑，一留边就是两条黑边 */
+.role_box {
+  padding: 0;
+}
+.box_title {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 10px;
+  font-family: tttgbnumber;
+  font-size: 17px;
+  color: #f0f3fa;
+}
+.box_title span {
+  margin-left: 8px;
+  padding: 1px 7px 0;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #cfd6e5;
+  background: rgba(255, 255, 255, 0.09);
+}
+/* 一行六张的浅色小卡，版式照原神 #角色：立绘在上，下面接等级/行迹/光锥 */
+.role_list {
+  display: flex;
+  flex-wrap: wrap;
+  /* 不留内边距，六张卡自己把 740px 铺满 */
+  padding: 0;
+}
+.role {
+  display: flex;
+  flex-direction: column;
+  width: calc(16.6667% - 8px);
+  margin: 0 4px 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e7e5d9;
+  box-shadow: 0 2px 9px 0 rgba(0, 0, 0, 0.45);
+}
+/* 立绘区：胸像压在星级底图上，稀有度靠底图颜色区分 */
+.role_pic {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* 右下角跟着原神卡留大圆角，跟下面的米色数据区接出弧线 */
+  border-radius: 10px 10px 22px 0;
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.role.star5 .role_pic {
+  background-image: url("../../../../miao-plugin/resources/common/item/bg5.png");
+}
+.role.star4 .role_pic {
+  background-image: url("../../../../miao-plugin/resources/common/item/bg4.png");
+}
+/* 立绘要填满整个格子：格子是正方形，face 里 68 张正好也是 256×256，
+   cover 对它们是原样铺满、一点不裁；剩下 25 张是 160×188 的老四星立绘，
+   cover 会按宽度铺满、上下各多出 9%，所以贴顶对齐把多出来的部分全裁在底部，头顶才不会被切 */
+.role_pic .pile {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+/* 立绘底部压一条黑底白字，左边等级、右边名字，最右挂属性与命途 */
+.role_bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-family: tttgbnumber;
+  font-size: 12px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+.role_bar .lv {
+  flex: none;
+  margin-right: 4px;
+  font-size: 11px;
+  color: #e8e2d2;
+}
+.role_bar .rname {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.role_bar .mini {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+}
+.role_bar .mini.elem {
+  filter: brightness(1.35);
+}
+/* 星魂做成立绘右上角的角标，位置和配色都照原神卡的命座角标（miao 的 .cons-N） */
+.cons_tag {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 2px 7px 3px;
+  font-family: tttgbnumber;
+  font-size: 15px;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 1px #000, 1px 1px 3px rgba(0, 0, 0, 0.8);
+  border-radius: 0 0 0 7px;
+}
+.cons_tag.cons1 {
+  background: #5cbac2;
+}
+.cons_tag.cons2 {
+  background: #339d61;
+}
+.cons_tag.cons3 {
+  background: #3e95b9;
+}
+.cons_tag.cons4 {
+  background: #3955b7;
+}
+.cons_tag.cons5 {
+  background: #531ba9cf;
+}
+.cons_tag.cons6 {
+  background: #ff5722;
+}
+/* 行迹四个数字：满级的填成米黄，跟原神卡的天赋格一样 */
+.talent {
+  display: flex;
+  padding: 4px 3px 3px;
+}
+.talent span {
+  flex: 1;
+  margin: 0 1.5px;
+  height: 23px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 4px;
+  font-family: tttgbnumber;
+  font-size: 13px;
+  color: #4c4638;
+  background: #f7f5ee;
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+.talent span.full {
+  color: #3a2702;
+  background: #d3bc8e;
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+.talent.no_talent span {
+  flex: none;
+  width: 100%;
+  margin: 0;
+  font-family: inherit;
+  font-size: 9px;
+  color: #8d8778;
+}
+/* 光锥与遗器并排一行，图标右下角各压一个阶数/件数角标，照原神卡的武器+圣遗物 */
+.cone_row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  /* 没有光锥又没有遗器时只有一行文字，撑个最小高度，卡片才跟别的一样高 */
+  min-height: 35px;
+  padding: 0 4px 5px;
+}
+.cone {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #6a558f 0%, #2c2540 100%);
+}
+.cone.cone5 {
+  background: linear-gradient(180deg, #9a7743 0%, #3a2e1e 100%);
+}
+.cone img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.artis {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(30, 26, 22, 0.55);
+}
+.artis img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.cone_rank,
+.artis_num {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  min-width: 12px;
+  padding: 0 2px;
+  font-family: tttgbnumber;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff;
+  background: rgba(20, 20, 20, 0.82);
+  border-radius: 3px 0 0 0;
+}
+.no_cone {
+  flex: none;
+  font-size: 9px;
+  color: #8d8778;
+}
+.cont_footer {
+  padding: 6px 0 8px;
+  text-align: center;
+  font-size: 10px;
+  color: #7b8497;
+}
+.cont_footer strong {
+  color: #a9b3c6;
+  margin-right: 6px;
+  font-weight: normal;
+}
+.logo {
+  padding: 10px 0 8px;
+  text-align: center;
+  font-size: 11px;
+  color: #626b83;
+  font-family: tttgbnumber;
+}

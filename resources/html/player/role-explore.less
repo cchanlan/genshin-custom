@@ -4,292 +4,292 @@
   font-weight: normal;
   font-style: normal;
 }
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   user-select: none;
 }
-
 body {
   font-size: 18px;
-  color: #1e1f20;
+  color: #fff;
   transform: scale(1.5);
   transform-origin: 0 0;
 }
-
 .container {
   width: 470px;
-  padding: 10px 15px;
-  background-color: #f5f6fb;
+  padding: 12px 15px 6px;
+  background: #0e1119 linear-gradient(180deg, #1b2133 0%, #0e1119 420px, #0e1119 100%);
 }
 
-.base_info {
+/******** 头部 ********/
+/* 特异性要高于 layout/genshin.html 里那条 .head_box，否则会被它的浅色规则盖掉 */
+.container .head_box {
+  height: 74px;
+  padding: 12px 16px;
+  border-radius: 14px;
   position: relative;
-  padding-left: 10px;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  font-family: tttgbnumber;
+  overflow: hidden;
 }
-
-.head_box {
-  box-shadow: 0 5px 10px 0 rgb(0 0 0 / 15%);
-}
-
 .head_box .icon {
   position: absolute;
-  left: 20px;
-  width: 50px;
+  left: 16px;
+  top: 15px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 2px solid #d3bc8e;
+  border: 2px solid rgba(211, 188, 141, 0.9);
 }
-
 .head_box .id_text {
-  font-size: 20px;
-  margin-bottom: 5px;
-  position: relative;
-  left: 70px;
-}
-
-.head_box .day_text {
-  font-size: 16px;
-  position: relative;
-  left: 53px;
-  text-indent: 1em;
+  font-size: 19px;
+  margin-left: 54px;
   display: flex;
+  align-items: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
-
 .head_box .name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 5em;
+  max-width: 6em;
 }
-
+.head_box .lv {
+  font-size: 11px;
+  margin-left: 7px;
+  padding: 1px 6px 0;
+  border-radius: 8px;
+  color: #f0e3c4;
+  background: rgba(211, 188, 141, 0.28);
+  border: 1px solid rgba(211, 188, 141, 0.45);
+}
+.head_box .day_text {
+  font-size: 13px;
+  margin: 5px 0 0 54px;
+  color: #b9c2d4;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
 .head_box .genshin_logo {
   position: absolute;
-  top: 1px;
-  right: 15px;
-  width: 97px;
+  top: 8px;
+  right: 14px;
+  width: 88px;
+  opacity: 0.9;
 }
 
-.basicInfo {
-  padding: 10px 5px 15px;
-  background: #f5f5f5;
-  box-shadow: 0 5px 10px 0 rgb(0 0 0 / 15%);
-  border-radius: 15px;
+/******** 通用卡片 ********/
+.data_box,
+.basicInfo,
+.explor_box {
   position: relative;
-  margin-bottom: 20px;
+  margin-top: 22px;
+  padding: 18px 15px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-
-.basicInfo_header {
-  display: flex;
-}
-
-.basicInfo_icon {
-  display: inline-block;
-  position: relative;
-}
-
-.basicInfo_icon {
-  background-image: url(../../img/deck/七圣召唤.png);
-  background-size: 70px 70px;
-  background-repeat: no-repeat;
-  width: 67px;
-  color: #fff;
-  text-align: center;
-  font-size: 35px;
-  line-height: 70px;
-  margin: 10px 10px 0;
-}
-
-.basicInfo_right {
-  display: inline-block;
-  width: calc(78% - 15px);
-  padding: 10px 0px;
-  margin-left: 7px;
-}
-
-.basicInfo_right .item {
-  width: 100%;
-  padding: 5px 10px 0;
-  height: 29px;
-  color: #877254;
-  font-size: 13px;
-  border: 1px solid #ebeadc;
-  margin: 5px 0;
-  background-color: #f5eee4;
-  display: flex;
-}
-
-.basicInfo_right .item div:first-child {
-  width: 50%;
-}
-
-.basicInfo_right .item div:nth-child(2) {
-  width: 50%;
-  text-align: right;
-}
-
-.uid {
-  margin: 20px 10px 10px;
-  text-shadow: 0 0 3px #000, 2px 2px 4px rgba(0, 0, 0, 0.7);
-  text-align: right;
-  color: #fff;
-}
-
-.uid:before {
-  content: " ";
-  position: absolute;
-  width: 5px;
-  height: 24px;
-  border-radius: 1px;
-  left: 0;
-  top: 0;
-  background: #d3bc8d;
-}
-
-.data_box {
-  border-radius: 15px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 10px 15px 0px 15px;
-  background: #fff;
-  box-shadow: 0 5px 10px 0 rgb(0 0 0 / 15%);
-  padding: 20px 15px 5px 15px;
-  position: relative;
-}
-
 .tab_lable {
   position: absolute;
   top: -10px;
-  left: -8px;
-  background: #d4b98c;
-  color: #fff;
-  font-size: 14px;
-  padding: 3px 10px;
-  border-radius: 15px 0px 15px 15px;
+  left: -6px;
+  background: linear-gradient(135deg, #e0cba2, #cbb180);
+  color: #2a2416;
+  font-size: 13px;
+  padding: 3px 11px;
+  border-radius: 14px 0 14px 14px;
   z-index: 20;
 }
 
-.data_line {
+/******** 顶部三个大数字 ********/
+.top_line {
   display: flex;
   justify-content: space-around;
+  align-items: flex-start;
+  padding: 2px 0 14px;
   margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
 }
-
-.data_line_item {
-  width: 100px;
+.top_item {
   text-align: center;
-  /*margin: 0 20px;*/
+  flex: 1;
+}
+.top_num {
+  font-family: tttgbnumber;
+  font-size: 21px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.top_num span {
+  font-family: tttgbnumber;
+  font-size: 12px;
+  color: #8b93a5;
+  margin-left: -2px;
 }
 
-.num {
+/******** 四列方块网格 ********/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+.cell {
+  padding: 8px 4px 7px;
+  border-radius: 9px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.07);
+}
+.cell .num {
+  font-family: tttgbnumber;
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cell .num span {
   font-family: tttgbnumber;
   font-size: 10px;
+  color: #8b93a5;
+  margin-left: -1px;
 }
-
-.num span {
-  font-family: tttgbnumber;
-  color: #7f858a;
-  font-size: 9px;
-}
-
-.explor_box .num {
-  font-family: tttgbnumber;
-  font-size: 12px;
-}
-
 .lable {
-  font-size: 14px;
-  color: #7f858a;
+  font-size: 11px;
+  color: #99a1b3;
   line-height: 1;
-  margin-top: 3px;
-}
-
-.explor_box {
-  position: relative;
-  font-size: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  border-radius: 15px;
-  margin-top: 20px;
-  margin-bottom: 12px;
-  background: #fff;
-  box-shadow: 0 5px 10px 0 rgb(0 0 0 / 15%);
-  padding: 15px;
-}
-
-.explor_box .item {
-  margin-top: 10px;
-  /*margin-right: 10px;*/
-  display: flex;
-  /*justify-content: center;*/
-  align-items: center;
-  width: 200px;
-  height: 85px;
-  padding: 3px 4px;
-  border-radius: 6px;
-  color: #fff;
-  line-height: 1;
-  background: #394467 url(../../img/other/world-exploration-frame.png) center center no-repeat;
-  background-origin: content-box;
-  background-size: 100% 97%;
-}
-
-.explor_box .icon {
-  width: 62px;
-  margin-left: 3px;
-}
-
-.explor_box .content {
-  margin-left: 4px;
-  width: 130px;
-}
-
-.explor_box .content p {
-  margin: 7px 0;
-}
-
-.explor_box .name {
-  /* color: #fff; */
-  font-weight: 500;
+  margin-top: 4px;
   white-space: nowrap;
 }
 
-.progress {
-  position: relative;
-  width: 120px;
-  height: 3px;
-  background-color: rgba(0, 0, 0, 0.3);
+/******** 七圣召唤 ********/
+.basicInfo_header {
+  display: flex;
+  align-items: center;
 }
-
-.progress .value {
-  position: absolute;
-  right: 0;
-  top: -14px;
+.basicInfo_icon {
+  background-image: url(../../img/deck/七圣召唤.png);
+  background-size: 64px 64px;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 64px;
+  height: 64px;
+  color: #fff;
+  text-align: center;
+  font-size: 30px;
+  font-family: tttgbnumber;
+  line-height: 66px;
+  flex-shrink: 0;
+}
+.basicInfo_right {
+  flex: 1;
+  margin-left: 12px;
+}
+.basicInfo_right .item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 11px;
+  margin: 6px 0;
   font-size: 12px;
+  color: #e6dcc6;
+  border-radius: 7px;
+  background: rgba(211, 188, 141, 0.13);
+  border: 1px solid rgba(211, 188, 141, 0.22);
+}
+.basicInfo_right .item div:nth-child(2) {
+  font-family: tttgbnumber;
 }
 
+/******** 地图探险 ********/
+.explor_grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.explor_box .item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* 按容器百分比算宽，别写死 200px——卡片的 1px 边框会吃掉可用宽度把第二列挤下去 */
+  width: calc(50% - 5px);
+  min-height: 82px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  line-height: 1;
+  color: #fff;
+  /* 观测枢那几张区域图比米游社的卡片背景亮不少，光靠遮罩压不住，文字统一加投影 */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  /* 没配 areaElem 的新地区走这个深蓝兜底 */
+  background-color: #394467;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
+}
+.explor_box .icon {
+  width: 46px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+/* 本地和接口都没有徽记图的地区：不留左侧空位，让文字铺满整张卡 */
+.explor_box .item.no_icon .icon {
+  display: none;
+}
+.explor_box .item.no_icon .content {
+  margin-left: 2px;
+  padding: 0 6px;
+}
+.explor_box .content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 6px;
+}
+.explor_box .content p {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 5px 0;
+  font-size: 11px;
+}
+.explor_box .name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #dfe5f0;
+}
+/* 第一行是地区名和主探索度，提一档做标题 */
+.explor_box .content p:first-child .name {
+  font-size: 12px;
+  color: #fff;
+}
+.explor_box .content p:first-child .num {
+  font-size: 13px;
+}
+.explor_box .num {
+  font-family: tttgbnumber;
+  font-size: 12px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  color: #fff;
+}
+.progress {
+  flex-basis: 100%;
+  height: 5px;
+  margin-top: 7px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.38);
+  overflow: hidden;
+}
 .progress .bar {
   height: 100%;
-  background-color: #d3bc8d;
-}
-
-.explor_box .prestige {
-  color: #1e1f20;
-  background: #e9e5dc;
-  width: 88px;
-  border-radius: 2px;
-  padding: 3px 7px;
-}
-
-.homes_hidden {
-  display: none;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #efdfb9, #d3bc8d);
 }
 
 .logo {
   font-size: 12px;
   font-family: "tttgbnumber";
   text-align: center;
-  color: #7994a7;
+  margin-top: 14px;
+  color: #6b768c;
 }
