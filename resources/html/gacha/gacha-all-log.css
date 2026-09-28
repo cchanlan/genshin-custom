@@ -1,5 +1,13 @@
+/**
+ * #全部记录 —— 布局沿用原样（每池一卡：头图 + 数据总览 + 五星头像墙），
+ * 视觉换成 #角色记录 那套：深色底 + 金色数字。
+ * 只改颜色 / 底纹 / 阴影，宽度、flex、内外边距一律不动。
+ */
+
+/* 页面底色：浅灰 → 深色。元素底图由模板用 _miao_path 指定 */
 body {
   position: absolute;
+  background-color: #0f1419;
 }
 .container {
   width: 1500px;
@@ -7,7 +15,7 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 20px 15px 10px 15px;
-  background-color: #f5f6fb;
+  background-color: #0f1419;
   height: 100%;
   /* 设置容器高度，这里假设容器的父元素有固定高度或是占满整个视口 */
 }
@@ -26,9 +34,82 @@ body,
 .container {
   width: inherit;
 }
+
+/* 头图：立绘保持 genshinLayout 的原设定（auto 100%，自然比例贴在右侧），
+   不铺满整条。只在左侧 ID / 抽数那一片叠一层由深到透明的渐变，
+   让深色主题下文字够清楚；渐变宽度用固定 px，窄卡宽卡上范围一致。
+   ⚠️ genshinLayout 的 <style> 排在 {{block 'css'}} 之后，同权重下它赢，
+   所以这里用 .body_box .container .head_box 提高权重 */
+.body_box .container .head_box {
+  box-shadow: 0 0 1px 0 rgba(211, 188, 142, 0.4), 0 5px 12px 0 rgba(0, 0, 0, 0.5);
+}
+.body_box .container .head_box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.72) 0,
+    rgba(0, 0, 0, 0.58) 120px,
+    rgba(0, 0, 0, 0.26) 220px,
+    rgba(0, 0, 0, 0) 320px
+  );
+}
+/* 渐变层是定位元素，文字得抬到它上面，否则会被压住 */
+.head_box .id_text,
+.head_box .day_text {
+  position: relative;
+  z-index: 1;
+}
+/* ID / 抽数：深底上改浅色，不然黑字糊成一团 */
+.head_box .id_text,
+.head_box .day_text {
+  color: #f2e6d2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* 数据卡：白底 → 半透明黑 + 金色细描边 */
+.data_box {
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 1px 0 rgba(211, 188, 142, 0.35), 0 5px 12px 0 rgba(0, 0, 0, 0.45);
+}
+/* 「数据总览」标签：深底金字 */
+.tab_lable {
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffde9d;
+}
+/* 统计数字：金色 */
+.data_line_item .num {
+  color: #ffde9d;
+}
+.data_box .lable {
+  color: #9aa0a8;
+}
+/* 池名标签：原来 #555 深灰 + 各池浅底，深色主题下不够跳，改白字加粗 */
+.head_box .label {
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+/* 五星历史分隔线 */
+.line_box {
+  color: #8b93a0;
+}
+.line_box .line {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+/* 头像墙 */
 .card_list .item {
   margin: 0px 10px 10px 10px;
   background: none;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.5);
 }
 .card_list .item.isNull {
   margin: 0px 10px 10px 10px;
