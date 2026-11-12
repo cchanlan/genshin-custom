@@ -3,14 +3,9 @@
 基于 [TRSS-Yunzai genshin 插件](https://gitee.com/TimeRainStarSky/Yunzai-genshin) 的定制版本。
 
 上游的功能和指令**全部保留**，本仓库只是在此之上改了出图样式、补了几项查询。
-下面的「与上游的不同」是这个仓库全部的改动，其余部分与上游一致。
+下面的「与上游的不同」是这个仓库全部的改动。
 
-同步上游：
-
-```bash
-git remote add upstream https://gitee.com/TimeRainStarSky/Yunzai-genshin
-git fetch upstream && git merge upstream/main
-```
+**本仓库不同步上游**，改动独立维护。
 
 ---
 
