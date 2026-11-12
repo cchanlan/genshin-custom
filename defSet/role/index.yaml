@@ -29,7 +29,7 @@ exquisite_chest: 3372
 common_chest: 3838
 
 # 传送点
-way_point: 848
+way_point: 915
 
 # 秘境
 domain: 74
@@ -56,7 +56,7 @@ pyroculus: 271
 moonoculus: 271
 
 # 冰神瞳（接口字段实测是 iceculus_number，不是 cryoculus）
-iceculus: 140
+iceculus: 230
 
 # ==========================================================
 # 以下为展示规则，正常不用改
