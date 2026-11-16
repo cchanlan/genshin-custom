@@ -17,16 +17,16 @@ level: 60
 magic_chest: 436
 
 # 华丽宝箱
-luxurious_chest: 414
+luxurious_chest: 427
 
 # 珍贵宝箱
 precious_chest: 1073
 
 # 精致宝箱
-exquisite_chest: 3372
+exquisite_chest: 3390
 
 # 普通宝箱
-common_chest: 3838
+common_chest: 3846
 
 # 传送点
 way_point: 915
