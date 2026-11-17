@@ -12,7 +12,7 @@
   <img class="icon" src="{{avatar}}">
   <p class="id_text"><span class="name">{{gamename}}</span><span class="lv">Lv.{{gamelevel}}</span></p>
   <div class="day_text">{{gamefwq}} | UID{{uid}}</div>
-  <img class="genshin_logo" src="{{_res_path}}img/other/原神.png">
+  <img class="genshin_logo" src="{{_res_path}}{{if game === 'sr'}}StarRail/img/other/logo.png{{else}}img/other/原神.png{{/if}}">
 </div>
 
 <div class="data_box">
@@ -56,25 +56,39 @@
 </div>
 {{/if}}
 
+{{set groups = explorGroups || [{title: explorTitle || "地图探险", list: explor}]}}
+{{each groups group}}
+{{if group.list?.length}}
 <div class="explor_box">
-  <div class="tab_lable">地图探险</div>
+  <div class="tab_lable">{{group.title}}</div>
   <div class="explor_grid">
-    {{each explor val}}
-    <div class="item{{if !val.hasIcon}} no_icon{{/if}}"
+    {{each group.list val}}
+    <div class="item{{if val.header}} with_header{{else if !val.hasIcon}} no_icon{{/if}}"
          {{if val.bgImg}}style="background-image: linear-gradient(115deg, rgba(8,12,20,.84) 0%, rgba(8,12,20,.54) 100%), url({{val.bgImg}})"{{/if}}>
-      <!-- 本地没图就退到接口给的官方徽记，都没有的话由 .no_icon 让文字填满卡片 -->
+      {{if val.header}}
+      <div class="explor_header">
+        {{if val.icon}}<img src="{{val.icon}}" onerror="this.style.display='none'"/>{{/if}}
+        <span class="header_name">{{val.header}}</span>
+        {{if val.summary}}<span class="num">{{val.summary}}</span>{{/if}}
+      </div>
+      {{else if val.hasIcon}}
       <img class="icon" src="{{_res_path}}img/other/{{val.name}}.png" data-fallback="{{val.icon}}"
            onerror="var f=this.dataset.fallback; if(f&&this.src!==f){this.src=f}else{this.onerror=null;this.style.display='none'}"/>
+      {{/if}}
       <div class="content">
         {{each val.line line}}
-        <p class="name">{{line.name}}<span class="num">{{line.text}}</span></p>
+        <p class="name">{{line.name}}<span class="num"{{if line.color}} style="color:{{line.color}}"{{/if}}>{{line.text}}</span></p>
         {{/each}}
       </div>
+      {{if val.percent !== undefined}}
       <div class="progress">
         <div class="bar" style="width:{{val.percent}}%"></div>
       </div>
+      {{/if}}
     </div>
     {{/each}}
   </div>
 </div>
+{{/if}}
+{{/each}}
 {{/block}}

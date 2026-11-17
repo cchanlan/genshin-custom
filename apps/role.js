@@ -3,6 +3,7 @@ import fs from "node:fs"
 import gsCfg from "../model/gsCfg.js"
 import RoleIndex from "../model/roleIndex.js"
 import SrRoleList from "../model/srRoleList.js"
+import SrExplore from "../model/srExplore.js"
 import Abyss from "../model/abyss.js"
 import Weapon from "../model/weapon.js"
 
@@ -40,6 +41,11 @@ export class role extends plugin {
           fnc: "roleExplore",
         },
         {
+          // 框架通常把 *探索 标准化为 #星铁探索，同时兼容未标准化的消息
+          reg: "^(#星铁|[*])探索[ |0-9]*$",
+          fnc: "srExplore",
+        },
+        {
           reg: "^#(幻想真境剧诗|剧诗)$",
           fnc: "combat",
         },
@@ -59,11 +65,12 @@ export class role extends plugin {
       },
     })
 
-    // 星铁没有探索/武器/深渊那几个查询，单独一套按钮
+    // 星铁使用独立按钮，不展示原神专属的武器/深渊/剧诗查询
     Object.defineProperty(this, "srButton", {
       get() {
         return segment.button([
           { text: "角色", callback: "*角色" },
+          { text: "探索", callback: "*探索" },
           { text: "体力", callback: "*体力" },
           { text: "星琼", callback: "*星琼" },
           { text: "抽卡记录", callback: "*抽卡记录" },
@@ -165,6 +172,19 @@ export class role extends plugin {
 
     this.reply([
       await this.renderImg("genshin", "html/player/role-list-sr", data, { retType: "base64" }),
+      this.srButton,
+    ])
+  }
+
+  /** 星铁探索，与原神共用深色探索面板 */
+  async srExplore() {
+    this.e.isSr = true
+    this.e.game = "sr"
+    let data = await SrExplore.get(this.e)
+    if (!data) return
+
+    this.reply([
+      await this.renderImg("genshin", "html/player/role-explore", data, { retType: "base64" }),
       this.srButton,
     ])
   }

@@ -212,6 +212,14 @@ export default class apiTool {
           url: `${hostRecord}game_record/app/hkrpg/api/role/basicInfo`,
           query: `role_id=${this.uid}&server=${this.server}`,
         },
+        chestInfo: {
+          url: `${hostRecord}game_record/app/hkrpg/api/chest_info`,
+          query: `role_id=${this.uid}&server=${this.server}`,
+        },
+        achievementInfo: {
+          url: `${hostRecord}game_record/app/hkrpg/api/achievement_info`,
+          query: `role_id=${this.uid}&server=${this.server}`,
+        },
         /** 深渊 （混沌回忆） */
         spiralAbyss: {
           url: `${hostRecord}game_record/app/hkrpg/api/challenge`,

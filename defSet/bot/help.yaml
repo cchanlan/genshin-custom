@@ -30,6 +30,11 @@
     - icon: 绑定账号
       title: '#绑定uid #uid'
       desc: 绑定查看游戏uid
+- group: 星铁查询指令
+  list:
+    - icon: role
+      title: "*探索 #星铁探索"
+      desc: "战利品开启详情、成就分类进度"
 - group: 其他查询指令
   list:
     - icon: 原石

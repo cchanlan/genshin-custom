@@ -272,6 +272,50 @@ body {
   flex-shrink: 0;
   color: #fff;
 }
+.explor_header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.explor_header img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.explor_header .header_name {
+  flex: 1;
+  min-width: 0;
+}
+.explor_header .num {
+  margin-left: 0;
+  white-space: nowrap;
+}
+.explor_box .item.with_header {
+  flex-flow: column nowrap;
+  align-items: stretch;
+}
+.explor_box .item.with_header .content {
+  flex: 1 0 auto;
+  margin: 5px 0 0;
+}
+.explor_box .item.with_header .content p {
+  align-items: baseline;
+  line-height: 1.4;
+  white-space: normal;
+  overflow: visible;
+}
+.explor_box .item.with_header .content .num {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.explor_box .item.with_header .progress {
+  flex: 0 0 5px;
+}
 .progress {
   flex-basis: 100%;
   height: 5px;

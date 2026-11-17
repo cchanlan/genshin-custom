@@ -11,7 +11,7 @@
 
 ## 与上游的不同
 
-改动集中在 20 个文件，分五块。
+主要改动分为以下五块。
 
 ### 1. #探险 整块重做
 
@@ -54,25 +54,32 @@
 传送点 693→839、秘境 69→74、月神瞳 192→271，并补了冰神瞳 140。
 这些数字接口不返回，只能跟着版本人工维护，改 yaml 即可。
 
-### 2. 新增 #星铁角色
+### 2. 新增星铁角色与探索
 
 上游没有星铁的角色列表，这是新加的。
 
 | 指令 | 说明 |
 | --- | --- |
 | `#星铁角色`、`#星铁角色列表` | 星穹铁道角色列表，含等级、星魂、行迹、光锥、遗器 |
+| `*探索`、`#星铁探索` | 星穹铁道探索总览、各地图战利品及成就分类进度 |
 
 实现在 [model/srRoleList.js](model/srRoleList.js)，模板 [role-list-sr.html](resources/html/player/role-list-sr.html)。
 需要 miao-plugin（用它的 `#miao.models` 取角色数据和图片资源）。
 
+星铁探索复用 `#探索` 的深色面板。千星城、二相乐园、翁法罗斯、匹诺康尼、仙舟「罗浮」、雅利洛-Ⅵ、空间站「黑塔」、以太战线均配有对应实景背景；未来新增且暂未收录的世界使用星穹列车场景。同排卡片的进度条底部对齐。各地图战利品和成就分类的已完成数、总数均读取米游社接口，不使用原神的分母配置；新地图和分类随接口返回展示。累计战利品与地图详情分别按各自接口统计，不混用总数。发送 `*探索` 或 `#星铁探索` 查询，也可在指令后加星铁 UID。
+
+场景素材来源：[星铁官网世界介绍](https://sr.mihoyo.com/world/165240)；以太战线使用 [IGN 1.4 版本介绍](https://www.ign.com/wikis/honkai-star-rail/Honkai_Star_Rail_Version_1.4_Details_and_Patch_Notes)中的旧武器试验场赛事会场截图。
+
 ### 3. 星铁接口补充
 
-[model/mys/apiTool.js](model/mys/apiTool.js) 补了四个米游社接口，供上层功能调用：
+[model/mys/apiTool.js](model/mys/apiTool.js) 补了以下米游社接口，供上层功能调用：
 
 - 虚构叙事 `challenge_story`
 - 末日幻影 `challenge_boss`
 - 异相仲裁 `challenge_peak`
 - 活动日历 `get_act_calender`
+- 地图战利品详情 `chest_info`
+- 成就分类详情 `achievement_info`
 
 混沌回忆的查询参数补上了 `need_all=true`，否则拿不到完整楼层数据。
 
@@ -122,6 +129,7 @@ git clone https://gitcode.com/ccxhan/genshin-custom.git ./plugins/genshin/
 | 指令 | 说明 |
 | :--- | :--- |
 |#星铁角色，#星铁角色列表|**新增**，星穹铁道角色列表|
+|*探索，#星铁探索|**新增**，星铁地图战利品及成就分类进度|
 |#探险，#宝箱，#成就，#探索度|出图重做，见上文|
 |#全部记录|出图改深色主题|
 
