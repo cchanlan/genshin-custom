@@ -10,7 +10,7 @@ import { promisify } from "node:util"
 import YAML from "yaml"
 import { Data } from "#miao"
 import { Player } from "#miao.models"
-import { UserGameDB, sequelize } from "./db/index.js"
+import { UserDB, UserGameDB, sequelize } from "./db/index.js"
 
 export default class User extends base {
   constructor(e) {
@@ -361,6 +361,13 @@ export default class User extends base {
     return await this.showUid()
   }
 
+  // 一次启动迁移只补从未进入新绑定库的用户；已存在的空绑定是明确删除结果。
+  async legacyExistingUsers() {
+    this._legacyExistingUsers ||= UserDB.findAll({ attributes: ["id"] })
+      .then(rows => new Set(rows.map(row => String(row.id))))
+    return this._legacyExistingUsers
+  }
+
   /** 加载V2ck */
   async loadOldDataV2() {
     let file = [
@@ -445,6 +452,7 @@ export default class User extends base {
   }
 
   async loadOldUid() {
+    const existing = await this.legacyExistingUsers()
     // 从DB中导入
     await sequelize.query("delete from UserGames where userId is null or data is null", {})
     let games = await UserGameDB.findAll()
@@ -452,6 +460,10 @@ export default class User extends base {
     await Data.forEach(games, async game => {
       if (!game.userId) {
         game.destroy()
+        return true
+      }
+      if (existing.has(String(game.userId))) {
+        await game.destroy()
         return true
       }
       count++
@@ -474,13 +486,13 @@ export default class User extends base {
     for (let key of keys) {
       let uid = await redis.get(key)
       let qqRet = /Yz:genshin:mys:qq-uid:(\d{5,12})/.exec(key)
-      if (qqRet?.[1] && uid) {
+      if (qqRet?.[1] && uid && !existing.has(String(qqRet[1]))) {
         let user = await NoteUser.create(qqRet[1])
         if (!user.getUid("gs")) {
-          user.addRegUid(uid, "gs")
+          await user.addRegUid(uid, "gs")
         }
       }
-      redis.del(key)
+      await redis.del(key)
     }
     await sequelize.query(
       "delete from Users where (ltuids is null or ltuids='') and games is null",
@@ -490,6 +502,7 @@ export default class User extends base {
   }
 
   async loadOldData(data) {
+    const existing = await this.legacyExistingUsers()
     let count = 0
     if (!lodash.isPlainObject(data)) {
       return
@@ -520,17 +533,20 @@ export default class User extends base {
       if (!qq) {
         continue
       }
-      let user = await NoteUser.create(qq)
-      for (let ltuid in ltuids) {
-        let data = ltuids[ltuid]
-        let mys = await MysUser.create(data.ltuid)
-        if (mys) {
-          mys.setCkData(data)
-          await mys.save()
-          user.addMysUser(mys)
+      if (!existing.has(String(qq))) {
+        let user = await NoteUser.create(qq)
+        for (let ltuid in ltuids) {
+          let data = ltuids[ltuid]
+          let mys = await MysUser.create(data.ltuid)
+          if (mys) {
+            mys.setCkData(data)
+            await mys.save()
+            await user.addMysUser(mys)
+          }
         }
+        await user.save()
+        count++
       }
-      await user.save()
       if (fs.existsSync(`./data/MysCookie/${qq}.yaml`)) {
         try {
           let src = `./data/MysCookie/${qq}.yaml`
@@ -542,8 +558,8 @@ export default class User extends base {
           console.log(err)
         }
       }
-      count++
     }
+    return count
   }
 
   /** 我的ck */
