@@ -4,6 +4,7 @@ import lodash from "lodash"
 import fs from "node:fs"
 import common from "../../../lib/common/common.js"
 import gsCfg from "./gsCfg.js"
+import NoteUser from "./mys/NoteUser.js"
 import { Character, Weapon } from "#miao.models"
 
 export default class GachaLog extends base {
@@ -188,7 +189,6 @@ export default class GachaLog extends base {
 
     if (res?.data?.list && res.data.list.length > 0) {
       this.uid = res.data.list[0].uid
-      await redis.setEx(this.uidKey, 3600 * 24 * 30, String(this.uid))
 
       /** 保存authkey */
       await redis.setEx(`${this.urlKey}${this.uid}`, 86400, param.authkey)
@@ -426,8 +426,7 @@ export default class GachaLog extends base {
   /** #抽卡记录 */
   async getLogData() {
     /** 判断uid */
-    await this.getUid()
-    if (!this.uid) {
+    if (!(await this.getUid())) {
       return false
     }
     if (this.e?.isAll) {
@@ -545,61 +544,24 @@ export default class GachaLog extends base {
   }
 
   async getUid() {
-    if (!fs.existsSync(this.path)) {
-      this.e.reply(`暂无抽卡记录\n${this.e?.isSr ? "*" : "#"}记录帮助，查看配置说明`, false, {
-        at: true,
-      })
-      return false
-    }
-
-    let logs = fs.readdirSync(this.path)
-
-    if (lodash.isEmpty(logs)) {
-      this.e.reply(`暂无抽卡记录\n${this.e?.isSr ? "*" : "#"}记录帮助，查看配置说明`, false, {
-        at: true,
-      })
-      return false
-    }
-
+    // 显式链接导入可使用接口返回的 UID；默认查询只认当前绑定。
     if (!this.uid) {
       this.e.at = false
-      this.uid = this?.e?.isSr
-        ? this.e.user?._games?.sr?.uid
-        : this.e.user?._games?.gs?.uid ||
-          (await this.e.runtime.getUid(this.e)) ||
-          (await redis.get(this.uidKey))
+      const user = await NoteUser.create(this.e)
+      this.uid = user.getUid(this.e.isSr ? "sr" : "gs")
     }
-
-    /** 记录有绑定的uid */
-    if (this.uid && logs.includes(String(this.uid))) {
-      return this.uid
-    }
-
-    /** 拿修改时间最后的uid */
-    let uidArr = []
-    for (let uid of logs) {
-      let json = this?.e?.isSr ? `${this.path}${uid}/11.json` : `${this.path}${uid}/301.json`
-      if (!fs.existsSync(json)) {
-        continue
-      }
-
-      let tmp = fs.statSync(json)
-      uidArr.push({
-        uid,
-        mtimeMs: tmp.mtimeMs,
-      })
-    }
-    if (uidArr.length <= 0) {
+    if (!this.uid) {
+      this.e.reply("尚未绑定当前游戏UID，请先绑定后再查询记录", false, { at: true })
       return false
     }
-
-    uidArr = uidArr.sort(function (a, b) {
-      return b.mtimeMs - a.mtimeMs
-    })
-
-    this.uid = uidArr[0].uid
-
-    return uidArr[0].uid
+    if (!fs.existsSync(this.path + String(this.uid))) {
+      this.e.reply(
+        `当前UID（${this.uid}）暂无抽卡记录\n${this.e.isSr ? "*" : "#"}记录帮助，查看配置说明`,
+        false, { at: true },
+      )
+      return false
+    }
+    return this.uid
   }
 
   /** 统计计算记录 */

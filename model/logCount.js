@@ -90,10 +90,7 @@ export default class LogCount extends base {
     this.getPool()
 
     /** 判断uid */
-    await this.getUid()
-
-    if (!this.uid) {
-      await this.e.reply("当前绑定uid暂无抽卡记录")
+    if (!(await this.getUid())) {
       return false
     }
 
@@ -156,61 +153,7 @@ export default class LogCount extends base {
   }
 
   async getUid() {
-    if (!fs.existsSync(this.path)) {
-      this.e.reply(`暂无抽卡记录\n${this.e?.isSr ? "*" : "#"}记录帮助，查看配置说明`, false, {
-        at: true,
-      })
-      return false
-    }
-
-    let logs = fs.readdirSync(this.path)
-
-    if (lodash.isEmpty(logs)) {
-      this.e.reply(`暂无抽卡记录\n${this.e?.isSr ? "*" : "#"}记录帮助，查看配置说明`, false, {
-        at: true,
-      })
-      return false
-    }
-
-    if (!this.uid) {
-      this.e.at = false
-      this.uid = this?.e?.isSr
-        ? this.e.user?._games?.sr?.uid
-        : this.e.user?._games?.gs?.uid ||
-          (await this.e.runtime.getUid(this.e)) ||
-          (await redis.get(this.uidKey))
-    }
-
-    /** 记录有绑定的uid */
-    if (this.uid && logs.includes(String(this.uid))) {
-      return this.uid
-    }
-
-    /** 拿修改时间最后的uid */
-    let uidArr = []
-    for (let uid of logs) {
-      let json = `${this.path}${uid}/301.json`
-      if (!fs.existsSync(json)) {
-        continue
-      }
-
-      let tmp = fs.statSync(json)
-      uidArr.push({
-        uid,
-        mtimeMs: tmp.mtimeMs,
-      })
-    }
-    if (uidArr.length <= 0) {
-      return false
-    }
-
-    uidArr = uidArr.sort(function (a, b) {
-      return b.mtimeMs - a.mtimeMs
-    })
-
-    this.uid = uidArr[0].uid
-
-    return uidArr[0].uid
+    return GachaLog.prototype.getUid.call(this)
   }
 
   getPoolCfg() {

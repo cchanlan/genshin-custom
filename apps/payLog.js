@@ -38,29 +38,23 @@ export class payLog extends plugin {
     })
   }
 
-  async payLog(e) {
+  async payLog(e = this.e) {
+    const mainUid = await this.isMain(e)
+    if (!mainUid) {
+      this.reply("尚未绑定原神UID，请先绑定后再查询充值记录")
+      return false
+    }
     // 判断是否存有已经生成的数据
-    if (!fs.readdirSync(this.dirPath, "utf-8").includes(e.user_id + ".yaml")) {
+    if (!fs.existsSync(path.join(this.dirPath, e.user_id + ".yaml"))) {
       // 如果没有则判断是否已经缓存了authkey，这个主要针对使用抽卡链接的，和苹果用户
-      await this.updatePayLog()
+      await this.updatePayLog(e)
       return true
     }
-
-    // 如果有就判断用户的主分支uid是什么
-    const mainUid = await this.isMain(e.user_id)
 
     // 再读取现有数据
     // const _path = path.resolve(`./data/payLog/${e.user_id}.yaml`)
     let data = fs.readFileSync(this.dirPath + `/${e.user_id}.yaml`, "utf-8")
     data = yaml.parse(data)
-
-    // 如果用户没有绑定ck，就直接发送保存的数据
-    if (!mainUid) {
-      let key = Object.keys(data)
-      let img = await renderImg(data[key[0]])
-      this.reply(img)
-      return true
-    }
 
     // 判断已有数据里是否有该uid的数据
     if (data[mainUid]) {
@@ -111,39 +105,30 @@ export class payLog extends plugin {
 
     // 存储数据
     await this.writeData(imgData)
-    await redis.setEx(`Yz:genshin:mys:qq-uid:${this.e.user_id}`, 3600 * 24 * 30, imgData.uid)
     await redis.setEx(`Yz:genshin:payLog:${imgData.uid}`, 3600 * 24, this.authKey)
     return true
   }
 
   /** 更新充值统计 */
-  async updatePayLog(e) {
-    // 读一下uid
-    let uid = await redis.get(`Yz:genshin:mys:qq-uid:${this.e.user_id}`)
-    if (uid) {
-      let mainUid = await this.isMain(this.e.user_id)
-      if (mainUid) uid = mainUid
-      // 读米游社链接的authkey
-      // 读抽卡链接的authkey
-      this.authKey =
-        (await redis.get(`Yz:genshin:payLog:${uid}`)) ||
-        (await redis.get(`Yz:genshin:gachaLog:url:${uid}`))
-      if (this.authKey) {
-        this.reply("正在获取数据,可能需要30s")
-        let imgData = await new PayData(this.authKey).filtrateData()
-        if (imgData?.errorMsg) {
-          this.reply(imgData.errorMsg)
-        } else {
-          let img = await renderImg(imgData)
-          this.reply(img)
-          await this.writeData(imgData)
-        }
-        return true
+  async updatePayLog(e = this.e) {
+    const uid = await this.isMain(e)
+    if (!uid) {
+      this.reply("尚未绑定原神UID，请先绑定后再更新充值记录")
+      return false
+    }
+    this.authKey =
+      (await redis.get(`Yz:genshin:payLog:${uid}`)) ||
+      (await redis.get(`Yz:genshin:gachaLog:url:${uid}`))
+    if (this.authKey) {
+      this.reply("正在获取数据,可能需要30s")
+      const imgData = await new PayData(this.authKey).filtrateData()
+      if (imgData?.errorMsg) {
+        this.reply(imgData.errorMsg)
+      } else if (String(imgData?.uid || '') !== String(uid)) {
+        this.reply("链接对应的UID与当前绑定不一致，请重新发送当前账号的链接")
       } else {
-        this.reply([
-          "请私聊发送米游社链接，可以发送【#充值统计帮助】查看链接教程",
-          segment.button([{ text: "充值帮助", callback: "#充值统计帮助" }]),
-        ])
+        this.reply(await renderImg(imgData))
+        await this.writeData(imgData)
       }
     } else {
       this.reply([
@@ -163,7 +148,7 @@ export class payLog extends plugin {
   /** 判断主uid，若没有则返回false,有则返回主uid */
   async isMain(id, game = "gs") {
     let user = await NoteUser.create(id)
-    return user.getCkUid(game)
+    return user.getUid(game)
   }
 
   /** 存储数据 */
