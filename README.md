@@ -221,6 +221,12 @@ git clone https://gitcode.com/ccxhan/genshin-custom.git ./plugins/genshin/
 
 ---
 
+## UID 删除与切换
+
+- 删除当前 UID 或其 Cookie 后，自动切换到对应游戏列表中的第一个剩余 UID，并在回复成功前保存。
+- 删除非当前 UID 时保留当前选择；某个游戏的 UID 删光后，清空该游戏的当前 UID，普通面板刷新不会沿用已删除的绑定。
+- 历史残留的当前 UID 在加载账号时自动校正并保存。消息中明确指定 UID、群名片取号等原有查询方式仍然保留。
+
 ## 说明
 
 - 账号 Cookie 存在 `config/` 下，该目录已在 `.gitignore` 中排除，不会被提交

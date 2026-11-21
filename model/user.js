@@ -236,7 +236,7 @@ export default class User extends base {
     let user = await this.user()
     let game = this.e
     let uidList = user.getUidList(game)
-    if (index > uidList.length) {
+    if (!Number.isInteger(Number(index)) || Number(index) < 1 || Number(index) > uidList.length) {
       return await this.e.reply([
         "uid序号输入错误",
         segment.button([{ text: "删除uid", input: "#删除uid" }]),
@@ -350,15 +350,14 @@ export default class User extends base {
     let user = await this.user()
     let game = this.e.game || "gs"
     let uidList = user.getUidList(game)
-    if (index > uidList.length) {
+    if (!Number.isInteger(Number(index)) || Number(index) < 1 || Number(index) > uidList.length) {
       return await this.e.reply([
         "uid序号输入错误",
         segment.button([{ text: "切换uid", input: "#uid" }]),
       ])
     }
     index = Number(index) - 1
-    user.setMainUid(index, game)
-    await user.save()
+    await user.setMainUid(index, game)
     return await this.showUid()
   }
 

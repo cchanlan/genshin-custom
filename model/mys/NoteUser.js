@@ -140,6 +140,13 @@ export default class NoteUser extends BaseModel {
   }
 
   async save() {
+    // 删除UID或CK后，先统一校准各游戏的当前UID，再落盘。
+    this._map = false
+    for (const game of Object.keys(this._games || {})) {
+      const ds = this.getGameDs(game)
+      const { map, list } = this.getUidMapList(game)
+      ds.uid = (map[ds.uid] ? ds.uid : list[0]?.uid) || ""
+    }
     await this.db.saveDB(this)
   }
 
@@ -211,9 +218,8 @@ export default class NoteUser extends BaseModel {
   /** 获取当前UID */
   getUid(game = "gs") {
     game = this.gameKey(game)
-    // todo 刷新uid
     let ds = this.getGameDs(game)
-    if (!ds.uid) {
+    if (!ds.uid || !this.hasUid(ds.uid, game)) {
       this.setMainUid("", game)
     }
     return ds.uid || ""
@@ -246,22 +252,15 @@ export default class NoteUser extends BaseModel {
     this._map = false
     this.setMainUid(uid, game, false)
     if (save) {
-      this.save()
+      return this.save()
     }
   }
 
   // 删除UID
-  delRegUid(uid, game = "gs") {
+  async delRegUid(uid, game = "gs") {
     game = this.gameKey(game)
-    let gameDs = this.getGameDs(game)
-    let dsData = gameDs.data
-    delete dsData[uid]
-    gameDs.data = dsData
-    this._map = false
-    if (gameDs.uid === uid) {
-      this.setMainUid("", game, false)
-    }
-    this.save()
+    delete this.getGameDs(game).data[String(uid)]
+    await this.save()
   }
 
   getGameDs(game = "gs") {
@@ -296,15 +295,12 @@ export default class NoteUser extends BaseModel {
       let uids = this.getUidList(game)
       uid = (uids?.[uid] || uids?.[0])?.uid || ""
     }
-    if (!uid) {
+    if (uid && !this.hasUid(uid, game)) {
       return false
     }
-    if (this.hasUid(uid, game)) {
-      let gameDs = this.getGameDs(game)
-      gameDs.uid = uid
-    }
+    this.getGameDs(game).uid = uid ? String(uid) : ""
     if (save) {
-      this.save()
+      return this.save()
     }
   }
 
@@ -312,13 +308,13 @@ export default class NoteUser extends BaseModel {
   async addMysUser(mysUser) {
     this.mysUsers[mysUser.ltuid] = mysUser
     this._map = false
-    MysUtil.eachGame(game => {
+    await MysUtil.eachGame(game => {
       let uid = mysUser.getUid(game)
       if (uid && this.getUid(game) == "") {
         this.setMainUid(uid, game, false)
       }
     })
-    this.save()
+    await this.save()
   }
 
   // 删除当前用户绑定CK
